@@ -1,18 +1,21 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { PieChart as RechartsPie, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
-import { CategoryData } from '../types/dashboard';
+import { CategoryData, TimeRange } from '../types/dashboard';
 
 interface PieChartProps {
   data: CategoryData[];
-  selectedCategory?: string | null;
-  onCategorySelect: (category: string | null) => void;
+  timeRange: TimeRange;
+  onTimeRangeChange: (range: TimeRange) => void;
+  hideTimeRangeSelector?: boolean;
 }
 
 const COLORS = {
   Casino: '#9AA4FA',
   Sport: '#A9EAE0',
   Poker: '#a6d1bf',
-  Others: '#636b85'
+  Virtual: '#FFB1C1',
+  Skill: '#636b85',
+  Others: '#94a3b8'
 };
 
 const CustomTooltip = ({ active, payload }: any) => {
@@ -22,58 +25,43 @@ const CustomTooltip = ({ active, payload }: any) => {
       <div className="bg-white p-2 shadow-lg rounded-lg border border-gray-200">
         <p className="font-medium">{data.name}</p>
         <p className="text-gray-600">At-Risk Users: {data.atRiskUsers}</p>
+        <p className="text-gray-500">{data.percentage}%</p>
       </div>
     );
   }
   return null;
 };
 
-const renderLegendText = (value: string, entry: any, selectedCategory: string | null, atRiskUsers: number) => {
-  return (
-    <span 
-      className={`text-gray-700 ${value === selectedCategory ? 'font-semibold' : ''}`}
-    >
-      {value} {value === selectedCategory ? `(${atRiskUsers} at-risk)` : ''}
-    </span>
-  );
-};
+const renderLegendText = (value: string) => (
+  <span className="text-gray-700">{value}</span>
+);
 
-export function PieChart({ data, selectedCategory, onCategorySelect }: PieChartProps) {
+export function PieChart({ data, timeRange, onTimeRangeChange, hideTimeRangeSelector = false }: PieChartProps) {
   return (
     <div className="h-[300px] w-full">
-      <style>
-        {`
-          .recharts-sector {
-            cursor: pointer;
-            transition: all 0.3s ease;
-          }
-          .recharts-sector:hover {
-            transform: scale(1.03);
-            filter: brightness(1.1);
-          }
-          .selected-sector {
-            transform: scale(1.05);
-            filter: brightness(1.1);
-          }
-          .recharts-legend-item {
-            cursor: pointer;
-            transition: opacity 0.2s ease;
-          }
-          .recharts-legend-item:hover {
-            opacity: 0.8;
-          }
-        `}
-      </style>
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-lg font-semibold">Product Distribution</h2>
+        {!hideTimeRangeSelector && (
+          <select
+            value={timeRange}
+            onChange={(e) => onTimeRangeChange(e.target.value as TimeRange)}
+            className="px-4 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          >
+            <option value="day">Yesterday</option>
+            <option value="week">Last 7 Days</option>
+            <option value="month">Last 30 Days</option>
+          </select>
+        )}
+      </div>
       <ResponsiveContainer width="100%" height="100%">
         <RechartsPie>
           <Pie
             data={data}
-            dataKey="percentage"
+            dataKey="atRiskUsers"
             nameKey="name"
             cx="55%"
             cy="50%"
             outerRadius={100}
-            onClick={(entry) => onCategorySelect(entry.name === selectedCategory ? null : entry.name)}
             animationDuration={300}
             animationBegin={0}
           >
@@ -81,9 +69,8 @@ export function PieChart({ data, selectedCategory, onCategorySelect }: PieChartP
               <Cell
                 key={entry.name}
                 fill={COLORS[entry.name as keyof typeof COLORS]}
-                stroke={entry.name === selectedCategory ? '#1E40AF' : '#fff'}
+                stroke="#fff"
                 strokeWidth={2}
-                className={entry.name === selectedCategory ? 'selected-sector' : ''}
               />
             ))}
           </Pie>
@@ -93,15 +80,7 @@ export function PieChart({ data, selectedCategory, onCategorySelect }: PieChartP
             verticalAlign="middle"
             layout="vertical"
             iconType="circle"
-            formatter={(value: string, entry: any) => 
-              renderLegendText(
-                value, 
-                entry, 
-                selectedCategory, 
-                data.find(d => d.name === value)?.atRiskUsers || 0
-              )
-            }
-            onClick={(entry) => onCategorySelect(entry.value === selectedCategory ? null : entry.value)}
+            formatter={renderLegendText}
             wrapperStyle={{
               paddingLeft: '10px'
             }}

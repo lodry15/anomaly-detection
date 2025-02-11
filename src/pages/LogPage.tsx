@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Eye, Search, ArrowUpDown, ArrowUp, ArrowDown, Download } from 'lucide-react';
 import { DateRangePicker } from '../components/DateRangePicker';
 import { LogDetailModal } from '../components/LogDetailModal';
-import { LogEntry } from '../types/log';
+import { LogEntry, Status } from '../types/log';
 import { ProductType } from '../types/userDetail';
 import { getMockLogEntries, getMockLogDetail } from '../data/mockLogData';
 
@@ -17,18 +17,18 @@ export function LogPage() {
   const [selectedProduct, setSelectedProduct] = useState<ProductType | 'All'>('All');
   const [selectedUsername, setSelectedUsername] = useState<string | null>(null);
   const [sortConfig, setSortConfig] = useState<{
-    key: keyof Pick<LogEntry, 'username' | 'numReports' | 'lastReportDate'>;
+    key: keyof Pick<LogEntry, 'username' | 'reportDate' | 'numReports' | 'daysAtRisk' | 'lastReportDate'>;
     direction: 'asc' | 'desc';
   } | null>(null);
 
-  const handleSort = (key: keyof Pick<LogEntry, 'username' | 'numReports' | 'lastReportDate'>) => {
+  const handleSort = (key: keyof Pick<LogEntry, 'username' | 'reportDate' | 'numReports' | 'daysAtRisk' | 'lastReportDate'>) => {
     setSortConfig(current => ({
       key,
       direction: current?.key === key && current.direction === 'asc' ? 'desc' : 'asc'
     }));
   };
 
-  const getSortIcon = (key: keyof Pick<LogEntry, 'username' | 'numReports' | 'lastReportDate'>) => {
+  const getSortIcon = (key: keyof Pick<LogEntry, 'username' | 'reportDate' | 'numReports' | 'daysAtRisk' | 'lastReportDate'>) => {
     if (sortConfig?.key !== key) {
       return <ArrowUpDown size={16} className="text-gray-400" />;
     }
@@ -40,6 +40,20 @@ export function LogPage() {
   const handleDateChange = (start: string, end: string) => {
     setStartDate(start);
     setEndDate(end);
+  };
+
+  const getStatusColor = (status: Status): string => {
+    switch (status) {
+      case 'Pending Review': return 'text-red-600';
+      case 'Under Monitoring': return 'text-amber-600';
+      case 'Done': return 'text-green-600';
+      default: return 'text-gray-600';
+    }
+  };
+
+  const handleStatusChange = (status: Status) => {
+    // In a real application, this would make an API call to update the user's status
+    console.log('Updating status for user:', selectedUsername, 'to:', status);
   };
 
   // Get and sort data
@@ -87,13 +101,10 @@ export function LogPage() {
             <option value="Casino">Casino</option>
             <option value="Sport">Sport</option>
             <option value="Poker">Poker</option>
+            <option value="Virtual">Virtual</option>
+            <option value="Skill">Skill</option>
             <option value="Others">Others</option>
           </select>
-          <DateRangePicker
-            startDate={startDate}
-            endDate={endDate}
-            onDateChange={handleDateChange}
-          />
           <button
             className="h-[42px] inline-flex items-center gap-2 px-4 bg-white border border-gray-300 rounded-md text-sm text-gray-700"
           >
@@ -118,6 +129,18 @@ export function LogPage() {
                 </th>
                 <th 
                   className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                  onClick={() => handleSort('reportDate')}
+                >
+                  <div className="flex items-center gap-2">
+                    Day of Report
+                    {getSortIcon('reportDate')}
+                  </div>
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Main Product
+                </th>
+                <th 
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
                   onClick={() => handleSort('numReports')}
                 >
                   <div className="flex items-center gap-2">
@@ -125,8 +148,14 @@ export function LogPage() {
                     {getSortIcon('numReports')}
                   </div>
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Main Product
+                <th 
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                  onClick={() => handleSort('daysAtRisk')}
+                >
+                  <div className="flex items-center gap-2">
+                    At Risk For
+                    {getSortIcon('daysAtRisk')}
+                  </div>
                 </th>
                 <th 
                   className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
@@ -136,6 +165,12 @@ export function LogPage() {
                     Last Report Date
                     {getSortIcon('lastReportDate')}
                   </div>
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Last Action
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Status
                 </th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Actions
@@ -152,13 +187,27 @@ export function LogPage() {
                     {entry.username}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {entry.numReports}
+                    {entry.reportDate}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {entry.mainProduct}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {entry.numReports}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {entry.daysAtRisk}d
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {entry.lastReportDate}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {entry.lastAction}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm">
+                    <span className={`font-medium ${getStatusColor(entry.status)}`}>
+                      {entry.status}
+                    </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <button
@@ -180,6 +229,7 @@ export function LogPage() {
         <LogDetailModal
           data={getMockLogDetail(selectedUsername)}
           onClose={() => setSelectedUsername(null)}
+          onStatusChange={handleStatusChange}
         />
       )}
     </div>

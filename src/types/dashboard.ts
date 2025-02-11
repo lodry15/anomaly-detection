@@ -1,39 +1,33 @@
-import { Category } from './dashboard';
+export type ProductType = 'Casino' | 'Sport' | 'Poker' | 'Virtual' | 'Skill' | 'Others' | 'All';
+export type TimeRange = 'day' | 'week' | 'month' | 'year';
 
-export interface DashboardStats {
+export interface KPIValue {
   activeUsers: number;
   atRiskUsers: number;
-  activeUsersDelta: number;
-  atRiskUsersDelta: number;
+  activeDelta: number;
+  riskDelta: number;
 }
 
-export interface CategoryData {
-  name: string;
-  activeUsers: number;
-  atRiskUsers: number;
-  percentage: number;
+export interface KPIHistoricalData {
+  lastWeek: {
+    activeUsers: number;
+    atRiskUsers: number;
+  };
+  lastMonth: {
+    activeUsers: number;
+    atRiskUsers: number;
+  };
+  lastYear: {
+    activeUsers: number;
+    atRiskUsers: number;
+  };
 }
 
 export interface KPIData {
-  ggt: number;
-  medianGgt: number;
-  totalDeposit: number;
-  medianDeposit: number;
-  ggr: number;
-  medianGgr: number;
-  totalPayout: number;
-  medianPayout: number;
-  netProfit: number;
-  medianNetProfit: number;
-  winRatio: number;
-  medianWinRatio: number;
+  ggt: KPIValue & KPIHistoricalData;
+  ggr: KPIValue & KPIHistoricalData;
+  netProfit: KPIValue & KPIHistoricalData;
+  totalDeposit: KPIValue & KPIHistoricalData;
+  totalPayout: KPIValue & KPIHistoricalData;
+  winRatio: KPIValue & KPIHistoricalData;
 }
-
-export interface KPITrendData {
-  date: string;
-  value: number;
-}
-
-export type KPIMetric = keyof KPIData;
-export type Category = 'Casino' | 'Sport' | 'Poker' | 'Others';
-export type TimeRange = 'day' | 'week' | 'month';

@@ -38,7 +38,7 @@ export function Sidebar() {
     >
       <div className="p-4 flex flex-col h-full">
         <div className="flex items-center justify-between mb-8">
-          {!isCollapsed && <h1 className="text-xl font-bold text-white">Dashboard</h1>}
+          {!isCollapsed && <h1 className="text-xl font-bold text-white">Microgame - ADT</h1>}
           <button
             onClick={() => setIsCollapsed(!isCollapsed)}
             className="p-1 rounded-lg hover:bg-[#3a4759] transition-colors text-white"
@@ -50,14 +50,14 @@ export function Sidebar() {
         <nav className="space-y-2">
           <NavItem 
             icon={<LayoutDashboard size={20} />} 
-            label="Summary" 
+            label="Business" 
             isActive={location.pathname === '/summary'} 
             isCollapsed={isCollapsed}
             onClick={() => navigate('/summary')}
           />
           <NavItem 
             icon={<Users size={20} />} 
-            label="User Detail" 
+            label="Analysis" 
             isActive={location.pathname === '/user-detail'} 
             isCollapsed={isCollapsed}
             onClick={() => navigate('/user-detail')}

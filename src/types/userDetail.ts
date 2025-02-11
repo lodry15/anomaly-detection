@@ -1,5 +1,19 @@
-export type ProductType = 'Casino' | 'Sport' | 'Poker' | 'Others' | 'All';
-export type ClusterType = 'Consistent' | 'Regular' | 'Impulsive' | 'Erratic' | 'New' | 'High-Value';
+import { ProductType } from './dashboard';
+
+export type ClusterType = 'High Frequency' | 'High Stake' | 'Loss Chaser' | 'Night Time' | 'Erratic';
+export type RiskLevel = 'High' | 'Medium' | 'Low';
+export type TimeRange = 'Yesterday' | 'Last 7 Days' | 'Last 30 Days';
+
+export interface AtRiskUser {
+  id: string;
+  username: string;
+  cluster: ClusterType;
+  level: RiskLevel;
+  ggt: number;
+  ggr: number;
+  deposit: number;
+  daysAtRisk: number;
+}
 
 export interface ClusterData {
   id: string;
@@ -15,16 +29,6 @@ export interface ProductClusterData {
   clusters: ClusterData[];
 }
 
-export interface AtRiskUser {
-  id: string;
-  username: string;
-  cluster: ClusterType;
-  totalDeposit: number;
-  totalBets: number;
-  netProfit: number;
-  payoutPercentage: number;
-}
-
 export interface UserDetailData {
   id: string;
   username: string;
@@ -33,8 +37,7 @@ export interface UserDetailData {
   province: string;
   registrationDate: string;
   lastLogin: string;
-  preferredProduct: ProductType;
-  riskLevel: 'Low' | 'Medium' | 'High';
+  preferredProducts: string[];
   stats: {
     totalDeposits: number;
     totalWithdrawals: number;
